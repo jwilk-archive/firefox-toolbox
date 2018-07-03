@@ -1,0 +1,31 @@
+#!/usr/bin/env perl
+
+# Copyright © 2018 Jakub Wilk <jwilk@jwilk.net>
+# SPDX-License-Identifier: MIT
+
+# cwd in @INC is harmful:
+# http://www.nntp.perl.org/group/perl.perl5.porters/2010/08/msg162729.html
+no lib '.';
+
+use strict;
+use warnings;
+
+use v5.10;
+
+use IPC::System::Simple qw(system capture);
+
+my %seen = ();
+system qw(xdotool search --onlyvisible --class firefox windowactivate --sync);
+while (1) {
+    system qw(xdotool key ctrl+l ctrl+c);
+    my $url = capture qw(xclip -selection clipboard -o);
+    chomp $url;
+    if (exists $seen{$url}) {
+        last;
+    }
+    $seen{$url} = 1;
+    say "$url";
+    system qw(xdotool key ctrl+Tab);
+}
+
+# vim:ts=4 sts=4 sw=4 et
