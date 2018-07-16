@@ -15,7 +15,9 @@ use v5.10;
 use IPC::System::Simple qw(system capture);
 
 my %seen = ();
-system qw(xdotool search --onlyvisible --name), 'Mozilla Firefox', qw(windowactivate --sync);
+capture('xwininfo') =~ m/^xwininfo: Window id: (0x[0-9a-fA-F]+) /m or die 'cannot parse xwininfo output';
+my $window_id = hex $1;
+system qw(xdotool windowactivate --sync), $window_id;
 while (1) {
     system qw(xdotool key ctrl+l ctrl+c);
     my $url = capture qw(xclip -selection clipboard -o);
